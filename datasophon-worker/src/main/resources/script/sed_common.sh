@@ -21,8 +21,8 @@ masterWebPort=$2
 frameCode=$3
 clusterId=$4
 installPath=$5
-sed -i -e "s:masterHost=.*:masterHost=${masterHost}:g" ${installPath}/datasophon-worker/conf/common.properties
-sed -i -e "s:masterWebPort=.*:masterWebPort=${masterWebPort}:g" ${installPath}/datasophon-worker/conf/common.properties
-sed -i -e "s:frameCode=.*:frameCode=${frameCode}:g" ${installPath}/datasophon-worker/conf/common.properties
-sed -i -e "s:clusterId=.*:clusterId=${clusterId}:g" ${installPath}/datasophon-worker/conf/common.properties
+sed -i -e "s:datasophon\.master\.host=.*:datasophon\.master\.host=${masterHost}:g" ${installPath}/datasophon-worker/conf/common.properties
+sed -i -e "s:datasophon\.master\.web\.port=.*:datasophon\.master\.web\.port=${masterWebPort}:g" ${installPath}/datasophon-worker/conf/common.properties
+sed -i -e "s:datasophon\.frame\.code=.*:datasophon\.frame\.code=${frameCode}:g" ${installPath}/datasophon-worker/conf/common.properties
+sed -i -e "s:datasophon\.cluster\.id=.*:datasophon\.cluster\.id=${clusterId}:g" ${installPath}/datasophon-worker/conf/common.properties
 echo "success"

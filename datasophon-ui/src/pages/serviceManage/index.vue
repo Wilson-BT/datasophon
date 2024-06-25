@@ -146,7 +146,7 @@ export default {
     console.log(this.$route, 'sdadadasd')
   },
   deactivated () {
-    console.log('每次我buxiang只触发一次')
+    console.log('每次我不想只触发一次')
   }
 };
 </script>

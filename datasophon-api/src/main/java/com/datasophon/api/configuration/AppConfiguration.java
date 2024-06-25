@@ -23,6 +23,7 @@ import com.datasophon.api.interceptor.UserPermissionHandler;
 
 import java.util.Locale;
 
+import com.datasophon.common.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -45,8 +46,7 @@ public class AppConfiguration implements WebMvcConfigurer {
     public static final String LOGIN_INTERCEPTOR_PATH_PATTERN = "/**/*";
     public static final String LOGIN_PATH_PATTERN = "/login";
     public static final String PATH_PATTERN = "/**";
-    public static final String LOCALE_LANGUAGE_COOKIE = "language";
-    
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -70,7 +70,7 @@ public class AppConfiguration implements WebMvcConfigurer {
     @Bean(name = "localeResolver")
     public LocaleResolver localeResolver() {
         CookieLocaleResolver localeResolver = new CookieLocaleResolver();
-        localeResolver.setCookieName(LOCALE_LANGUAGE_COOKIE);
+        localeResolver.setCookieName(Constants.LOCALE_LANGUAGE);
         /** set default locale **/
         localeResolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
         /** set language tag compliant **/

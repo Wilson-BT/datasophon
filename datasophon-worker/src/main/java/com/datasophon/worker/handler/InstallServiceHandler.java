@@ -143,7 +143,7 @@ public class InstallServiceHandler {
                 if (decompressPackageName.contains(Constants.PROMETHEUS)) {
                     String alertPath = Constants.INSTALL_PATH + Constants.SLASH + decompressPackageName
                             + Constants.SLASH + "alert_rules";
-                    ShellUtils.exceShell("sed -i \"s/clusterIdValue/" + PropertyUtils.getString("clusterId")
+                    ShellUtils.exceShell("sed -i \"s/clusterIdValue/" + PropertyUtils.getString(Constants.DATASOPHON_CLUSTER_ID)
                             + "/g\" `grep clusterIdValue -rl " + alertPath + "`");
                 }
                 if (decompressPackageName.contains(HADOOP)) {

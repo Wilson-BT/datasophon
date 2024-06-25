@@ -51,7 +51,7 @@ public class TezServerHandlerStrategy extends AbstractHandlerStrategy implements
         ServiceHandler serviceHandler = new ServiceHandler(command.getServiceName(), command.getServiceRoleName());
         String workPath = Constants.INSTALL_PATH + Constants.SLASH + command.getDecompressPackageName();
         if (command.getCommandType().equals(CommandType.INSTALL_SERVICE)) {
-            final String hadoopHome = PropertyUtils.getString("HADOOP_HOME");
+            final String hadoopHome = PropertyUtils.getString(Constants.DATASOPHON_HADOOP_HOME);
             final String tezLibPath = Optional.ofNullable(StringUtils.trimToNull(createEnvPath(workPath)))
                     .orElse("hdfs:///user/tez/tez.tar.gz");
             final String tezLibParentDir = new Path(URI.create(tezLibPath).getPath()).getParent().toString();

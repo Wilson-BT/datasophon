@@ -89,7 +89,7 @@ public class HiveServer2HandlerStrategy extends AbstractHandlerStrategy implemen
             }
         }
         if (command.getCommandType().equals(CommandType.INSTALL_SERVICE)) {
-            String hadoopHome = PropertyUtils.getString("HADOOP_HOME");
+            String hadoopHome = PropertyUtils.getString(Constants.DATASOPHON_HADOOP_HOME);
             ShellUtils.exceShell("sudo -u hdfs " + hadoopHome + "/bin/hdfs dfs -mkdir -p /user/hive/warehouse");
             ShellUtils.exceShell("sudo -u hdfs " + hadoopHome + "/bin/hdfs dfs -mkdir -p /tmp/hive");
             ShellUtils.exceShell(

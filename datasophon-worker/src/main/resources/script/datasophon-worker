@@ -17,23 +17,30 @@
 #
 
 # chkconfig: 35 95 1
-usage="Usage: start.sh (start|stop|restart) <command> "
+usage="Usage: datasophon-worker (start|stop|restart) <installPath> "
+
+if [ $# -lt 2 ]; then
+  echo $usage
+  exit 1
+fi
 
 startStop=$1
-installPath=$2
+INSTALL_PATH=$2
+export $INSTALL_PATH
+# 环境变量
 
 case $startStop in
   (start)
-    sh /opt/datasophon/datasophon-worker/bin/datasophon-worker.sh start worker
+    sh $INSTALL_PATH/datasophon-worker/bin/datasophon-worker.sh start
     ;;
   (stop)
-    sh /opt/datasophon/datasophon-worker/bin/datasophon-worker.sh stop worker
+    sh $INSTALL_PATH/datasophon-worker/bin/datasophon-worker.sh stop
       ;;
   (status)
-    sh /opt/datasophon/datasophon-worker/bin/datasophon-worker.sh status worker
+    sh $INSTALL_PATH/datasophon-worker/bin/datasophon-worker.sh status
       ;;
   (restart)
-    sh /opt/datasophon/datasophon-worker/bin/datasophon-worker.sh restart worker
+    sh $INSTALL_PATH/datasophon-worker/bin/datasophon-worker.sh restart
       ;;
   (*)
     echo $usage

@@ -17,6 +17,7 @@
 
 package com.datasophon.common;
 
+import com.datasophon.common.utils.PlaceholderUtils;
 import com.datasophon.common.utils.PropertyUtils;
 
 import java.util.regex.Pattern;
@@ -26,9 +27,11 @@ import java.util.regex.Pattern;
  */
 public final class Constants {
     
-    public static final String INSTALL_PATH = PropertyUtils.getString("install.path");
+    public static final String INSTALL_PATH = PlaceholderUtils.pathDelimiterResolve(
+            PropertyUtils.getString(Constants.DATASOPHON_PROJECT_INSTALL_PATH));
     public static final String DATA = "data";
     public static final String INSTALL_TYPE = "install_type";
+
     public static final String TOTAL = "total";
     
     public static final String DATASOPHON = "datasophon";
@@ -36,13 +39,14 @@ public final class Constants {
     public static final String HOST_MAP = "_host_map";
     public static final String COMMAND_HOST_ID = "command_host_id";
     public static final String HOST_MD5 = "_host_md5";
-    public static final String ID_RSA = PropertyUtils.getString("id_rsa", "/.ssh/id_rsa");
+    public static final String ID_RSA = PropertyUtils.getString(Constants.DATASOPHON_ID_RSA, "/.ssh/id_rsa");
+
     public static final String HOSTNAME = "hostname";
     
     public static final String MASTER_MANAGE_PACKAGE_PATH = INSTALL_PATH + "/DDP/packages";
     public static final String UNZIP_DDH_WORKER_CMD =
-            "tar -zxvf " + INSTALL_PATH + "/datasophon-worker.tar.gz -C " + INSTALL_PATH;
-    public static final String START_DDH_WORKER_CMD = "service datasophon-worker restart";
+            "rm -rf " + INSTALL_PATH + "/datasophon-worker &&  tar -zxvf " + INSTALL_PATH + "/datasophon-worker.tar.gz -C " + INSTALL_PATH;
+    public static final String START_DDH_WORKER_CMD = "service datasophon-worker restart " + INSTALL_PATH;
     
     public static final String WORKER_PACKAGE_NAME = "datasophon-worker.tar.gz";
     public static final String WORKER_SCRIPT_PATH = INSTALL_PATH + "/datasophon-worker/script/";
@@ -52,6 +56,7 @@ public final class Constants {
     public static final String META_PATH = "meta";
     
     public static final String CLUSTER_ID = "cluster_id";
+
     public static final String MANAGED = "managed";
     public static final String JSON = "json";
     public static final String CONFIG = "_config";
@@ -65,7 +70,7 @@ public final class Constants {
     public static final String SUCCESS = "success";
     public static final String SERVICE_NAME = "service_name";
     public static final String SERVICE_ROLE_STATE = "service_role_state";
-    public static final String LOCALE_LANGUAGE = "language";
+    public static final String LOCALE_LANGUAGE = "datasophon.language";
     public static final String CODE = "code";
     public static final String CLUSTER_CODE = "cluster_code";
     public static final String START_DISTRIBUTE_AGENT = "start_distribute_agent";
@@ -76,9 +81,18 @@ public final class Constants {
     public static final String SERVICE_ROLE_NAME = "service_role_name";
     public static final String FRAME_CODE_1 = "frame_code";
     public static final String UPDATE_COMMON_CMD = "sh " + INSTALL_PATH + "/datasophon-worker/script/sed_common.sh ";
-    public static final String MASTER_HOST = "masterHost";
-    public static final String MASTER_WEB_PORT = "masterWebPort";
-    
+    public static final String MASTER_HOST = "datasophon.master.host";
+    public static final String MASTER_WEB_PORT = "datasophon.master.web.port";
+    public static final String DATASOPHON_CLUSTER_ID = "datasophon.cluster.id";
+    public static final String DATASOPHON_FRAME_CODE = "datasophon.frame.code";
+    public static final String DATASOPHON_ROWS = "datasophon.rows";
+    public static final String DATASOPHON_PROJECT_INSTALL_PATH = "datasophon.project.install.path";
+    public static final String DATASOPHON_CHECK_SERVICE_START_TIMES = "datasophon.check.service.start.times";
+    public static final String DATASOPHON_TIMEOUT_PERIOD_ONE = "datasophon.timeout.period.one";
+    public static final String DATASOPHON_TIMEOUT_PERIOD_TWO = "datasophon.timeout.period.two";
+    public static final String DATASOPHON_HADOOP_HOME = "datasophon.hadoop.home";
+    public static final String DATASOPHON_ID_RSA = "datasophon.id.rsa";
+
     public static final String HOST_COMMAND_ID = "host_command_id";
     
     public static final String CONFIG_VERSION = "config_version";
@@ -179,6 +193,11 @@ public final class Constants {
      * SPACE " "
      */
     public static final String SPACE = " ";
+
+    /**
+     * BLACK
+     */
+    public static final String BLACK = "";
     
     /**
      * SINGLE_SLASH /
@@ -193,9 +212,17 @@ public final class Constants {
      * message
      */
     public static final String MSG = "msg";
-    
+
+    /**
+     * WINDOWS division string
+     */
+    public static final String WINDOWS_DIVISION_STRING = "\\";
+    /**
+     * LINUX division string
+     */
+    public static final String DIVISION_STRING = "/";
+
     public static final String REGEX_VARIABLE = "\\$\\{(.*?)\\}";
-    
     /**
      * email regex
      */
@@ -261,4 +288,6 @@ public final class Constants {
     public static final String ROOT = "root";
     
     public static final String DISPATCHER_WORK = "dispatcher-worker.sh";
+
+    public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
 }

@@ -40,6 +40,7 @@ import org.apache.sshd.client.session.ClientSession;
 import scala.Option;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class DispatcherWorkerActor extends UntypedActor {
         DispatcherHostAgentCommand command = (DispatcherHostAgentCommand) message;
         HostInfo hostInfo = command.getHostInfo();
         String localIp = HostUtils.getLocalIp();
-        String localHostName = HostUtils.getLocalHostName();
+//        String localHostName = HostUtils.getLocalHostName();
         logger.info("start dispatcher host agent :{}", hostInfo.getHostname());
         hostInfo.setMessage(
                 MessageResolverUtils.getMessage(
@@ -83,7 +84,7 @@ public class DispatcherWorkerActor extends UntypedActor {
                             Constants.SLASH +
                             Constants.WORKER_PACKAGE_NAME + ".md5",
                     Charset.defaultCharset()).trim();
-            int exeCode = ExecuteShellScriptUtils.executeShellScript(executeShellPath, md5);
+            int exeCode = ExecuteShellScriptUtils.executeShellScript(Arrays.asList("sh", executeShellPath, md5, Constants.INSTALL_PATH));
             if (0 == exeCode) {
                 logger.info("distribution  datasophon-worker.tar.gz success");
                 logger.info("md5.verification datasophon-worker.tar.gz success");

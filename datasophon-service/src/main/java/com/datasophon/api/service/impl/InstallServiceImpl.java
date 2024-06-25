@@ -317,8 +317,8 @@ public class InstallServiceImpl implements InstallService {
             } else {
                 long timeout =
                         DateUtil.between(hostInfo.getCreateTime(), new Date(), DateUnit.MINUTE);
-                long timeOutPeriodOne = PropertyUtils.getLong("timeOutPeriodOne");
-                long timeOutPeriodTwo = PropertyUtils.getLong("timeOutPeriodTwo");
+                long timeOutPeriodOne = PropertyUtils.getLong(Constants.DATASOPHON_TIMEOUT_PERIOD_ONE);
+                long timeOutPeriodTwo = PropertyUtils.getLong(Constants.DATASOPHON_TIMEOUT_PERIOD_TWO);
                 Integer progress = hostInfo.getProgress();
                 if ("75".equals(String.valueOf(progress)) && timeout > timeOutPeriodOne) {
                     hostInfo.setInstallStateCode(InstallState.FAILED.getValue());

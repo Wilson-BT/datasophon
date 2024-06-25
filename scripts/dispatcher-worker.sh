@@ -3,6 +3,8 @@
 # example: sh init-jdk.sh
 # instal and config jdk env
 workmd5="$1"
+INSTALL_PATH="$2"
+echo
 if [ $UID -ne 0 ]; then
   echo Non root user. Please run as root.
   exit 1
@@ -19,12 +21,12 @@ BASE_PATH=$(
 INIT_PATH=$(dirname "${BASE_PATH}")
 echo "INIT_PATH: ${INIT_PATH}"
 
-cp /opt/datasophon/DDP/packages/datasophon-worker.tar.gz /opt/datasophon/
-checkworkmd5=$(md5sum /opt/datasophon/DDP/packages/datasophon-worker.tar.gz | awk '{print $1}')
+cp -rf $INSTALL_PATH/DDP/packages/datasophon-worker.tar.gz $INSTALL_PATH/
+checkworkmd5=$(md5sum $INSTALL_PATH/DDP/packages/datasophon-worker.tar.gz | awk '{print $1}')
 if [ "$checkworkmd5" = "$workmd5" ]; then
   echo "md5效验通过"
 else
   echo "md5效验不通过"
   exit 1
 fi
-tar -zxvf /opt/datasophon/datasophon-worker.tar.gz -C /opt/datasophon/
+rm -rf $INSTALL_PATH/datasophon-worker && tar -zxvf $INSTALL_PATH/datasophon-worker.tar.gz -C $INSTALL_PATH/

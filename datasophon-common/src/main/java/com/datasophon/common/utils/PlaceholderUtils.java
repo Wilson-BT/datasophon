@@ -24,11 +24,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.datasophon.common.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PlaceholderUtils {
-    
+
+    public static boolean WINDOWS =
+            System.getProperty("os.name").startsWith("Windows");
+
+
     private static final Logger logger = LoggerFactory.getLogger(PlaceholderUtils.class);
     
     public static void main(String[] args) {
@@ -115,6 +121,20 @@ public class PlaceholderUtils {
             list.add(nextStr);
         }
         return list;
+    }
+
+    public static String pathDelimiterResolve(String path){
+        if(StringUtils.isEmpty(path)){
+            return Constants.BLACK;
+        }
+        if((WINDOWS && path.endsWith(Constants.WINDOWS_DIVISION_STRING))){
+            return path.substring(0,path.lastIndexOf(Constants.WINDOWS_DIVISION_STRING));
+        }
+        if(!WINDOWS && path.endsWith(Constants.DIVISION_STRING)){
+
+            return path.substring(0,path.lastIndexOf(Constants.DIVISION_STRING));
+        }
+        return path;
     }
     
 }

@@ -24,7 +24,7 @@
 
 ```shell
 tar -zxvf flink-1.16.3-bin-scala_2.12.tgz（这里可以用原datasophon的1.15版本或者是参照官网的步骤定制需要的flink版本，如果用的原flink版本或者已经升级过，直接解压packages中的包即可，如果同时需要升级flink版本，注意保持和service_ddl.json中 decompressPackageName 一致）
-mv flink-1.16.3-bin-scala_2.12.tgz flink-1.16.3
+mv flink-1.16.3-bin-scala_2.12 flink-1.16.3
 ```
 
 ### 拷贝相关的包到lib目录
@@ -124,8 +124,7 @@ SET hive.metastore.warehouse.dir=hdfs://ddp1:8020/user/hive/warehouse;
 CREATE TABLE test.test_paimon(
                        a INT COMMENT 'The a field',
                        b STRING COMMENT 'The b field'
-)
-    STORED BY 'org.apache.paimon.hive.PaimonStorageHandler';
+) STORED BY 'org.apache.paimon.hive.PaimonStorageHandler';
 
 DESC FORMATTED test.test_paimon;
 INSERT INTO TABLE test.test_paimon(a,b) VALUES (666,'paimon集成hive成功');

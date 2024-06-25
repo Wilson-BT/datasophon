@@ -67,7 +67,7 @@ public class ServiceHandler {
         ExecResult startResult = execRunner(startRunner, decompressPackageName, runAs);
         // check start result
         if (startResult.getExecResult()) {
-            int times = PropertyUtils.getInt("times");
+            int times = PropertyUtils.getInt(Constants.DATASOPHON_CHECK_SERVICE_START_TIMES);
             int count = 0;
             while (count < times) {
                 logger.info("check start result at times {}", count + 1);
@@ -92,15 +92,15 @@ public class ServiceHandler {
         return startResult;
     }
     
-    public ExecResult stop(ServiceRoleRunner runner, ServiceRoleRunner statusRunner, String decompressPackageName,
+    public ExecResult stop(ServiceRoleRunner stopRunner, ServiceRoleRunner statusRunner, String decompressPackageName,
                            RunAs runAs) {
         ExecResult statusResult = execRunner(statusRunner, decompressPackageName, runAs);
         ExecResult execResult = new ExecResult();
         if (statusResult.getExecResult()) {
-            execResult = execRunner(runner, decompressPackageName, runAs);
+            execResult = execRunner(stopRunner, decompressPackageName, runAs);
             // 检测是否停止成功
             if (execResult.getExecResult()) {
-                int times = PropertyUtils.getInt("times");
+                int times = PropertyUtils.getInt(Constants.DATASOPHON_CHECK_SERVICE_START_TIMES);
                 int count = 0;
                 while (count < times) {
                     logger.info("check stop result at times {}", count + 1);

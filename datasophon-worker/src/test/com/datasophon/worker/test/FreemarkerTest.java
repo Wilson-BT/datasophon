@@ -228,4 +228,11 @@ public class FreemarkerTest {
     }
 
 
+    @Test
+    public void getUserDir(){
+        String currDir = System.getProperty("user.dir");
+        System.out.println(currDir);
+    }
+
+
 }

@@ -32,7 +32,7 @@ public class KerberosUtils {
     public static void downloadKeytabFromMaster(String principal, String keytabName) {
         String masterHost = PropertyUtils.getString(Constants.MASTER_HOST);
         String masterPort = PropertyUtils.getString(Constants.MASTER_WEB_PORT);
-        Integer clusterId = PropertyUtils.getInt("clusterId");
+        Integer clusterId = PropertyUtils.getInt(Constants.DATASOPHON_CLUSTER_ID);
         String hostname = CacheUtils.getString("hostname");
         
         // get kerberos keytab
@@ -45,7 +45,7 @@ public class KerberosUtils {
             
             @Override
             public void start() {
-                Console.log("start to install。。。。");
+                Console.log("start to install...");
             }
             
             @Override

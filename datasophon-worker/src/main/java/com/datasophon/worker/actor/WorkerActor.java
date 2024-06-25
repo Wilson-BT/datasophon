@@ -97,7 +97,7 @@ public class WorkerActor extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof String) {
-            
+            logger.info("Received msg:[{}]", message);
         } else if (message instanceof Terminated) {
             Terminated t = (Terminated) message;
             logger.info("find actor {} terminated", t.getActor());

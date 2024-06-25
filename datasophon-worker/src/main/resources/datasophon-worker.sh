@@ -16,21 +16,42 @@
 #  limitations under the License.
 #
 
-usage="Usage: start.sh (start|stop|restart) <command> "
-
-# if no args specified, show usage
-if [ $# -le 1 ]; then
+set -x
+usage="Usage: start.sh (start|stop|restart) "
+if [ $# -lt 1 ]; then
   echo $usage
   exit 1
 fi
 
+# if no args specified, show usage
 startStop=$1
-shift
-command=$1
 
+echo "Begin $startStop worker......"
 
-echo "Begin $startStop $command......"
 source /etc/profile
+ulimit -n 102400
+sysctl -w vm.max_map_count=2000000
+
+WORKER_HOME=$(dirname $(cd $(dirname $0); pwd))
+ETC_PROFILE="/etc/profile.d"
+DATA_ENV="$WORKER_HOME/script/datasophon-env.sh"
+# check install path is
+if [ -z "$INSTALL_PATH" ]; then
+    # 获取 WORKER_HOME 的父目录并赋值给 INSTALL_PATH
+    INSTALL_PATH=$(dirname "$WORKER_HOME")
+    export INSTALL_PATH
+    echo "INSTALL_PATH is set to: $INSTALL_PATH"
+fi
+
+# check env
+if [ -f $DATA_ENV ]; then
+    cp -rf $DATA_ENV $ETC_PROFILE/datasophon-env.sh
+    echo Moved datasophon-env.sh from $DATA_ENV to $ETC_PROFILE
+else
+    echo $DATA_ENV does not exist. Cannot move the file.
+fi
+# 执行文件
+source $ETC_PROFILE/datasophon-env.sh
 
 SCRIPT="$0"
 # SCRIPT may be an arbitrarily deep series of symlinks. Loop until we have the concrete path.
@@ -75,20 +96,15 @@ if [ ! -d "$DDH_LOG_DIR" ]; then
   mkdir -p $DDH_LOG_DIR
 fi
 
-log=$DDH_LOG_DIR/$command-$HOSTNAME.out
-pid=$DDH_PID_DIR/$command.pid
+log=$DDH_LOG_DIR/worker-$HOSTNAME.out
+pid=$DDH_PID_DIR/worker.pid
 
 cd $DDH_HOME
 
-if [ "$command" = "worker" ]; then
-  LOG_FILE="-Dlogging.config=classpath:logback.xml -Dspring.profiles.active=worker"
-  JMX="-javaagent:$DDH_HOME/jmx/jmx_prometheus_javaagent-0.16.1.jar=8585:$DDH_HOME/jmx/jmx_exporter_config.yaml"
-  CLASS=com.datasophon.worker.WorkerApplicationServer
-  export DDH_OPTS="$HEAP_OPTS $DDH_OPTS $JAVA_OPTS"
-else
-  echo "Error: No command named \`$command' was found."
-  exit 1
-fi
+LOG_FILE="-Dlogging.config=classpath:logback.xml -Dspring.profiles.active=worker"
+JMX="-javaagent:$DDH_HOME/jmx/jmx_prometheus_javaagent-0.16.1.jar=8585:$DDH_HOME/jmx/jmx_exporter_config.yaml"
+CLASS=com.datasophon.worker.WorkerApplicationServer
+export DDH_OPTS="$HEAP_OPTS $DDH_OPTS $JAVA_OPTS"
 
 case $startStop in
   (start)
@@ -96,12 +112,12 @@ case $startStop in
 
     if [ -f $pid ]; then
       if kill -0 `cat $pid` > /dev/null 2>&1; then
-        echo $command running as process `cat $pid`.  Stop it first.
+        echo worker running as process `cat $pid`.  Stop it first.
         exit 1
       fi
     fi
 
-    echo starting $command, logging to $log
+    echo starting worker, logging to $log
 
     exec_command="$DDH_OPTS $LOG_FILE $JMX -classpath $DDH_CONF_DIR:$DDH_LIB_JARS $CLASS"
 
@@ -114,60 +130,60 @@ case $startStop in
       if [ -f $pid ]; then
         TARGET_PID=`cat $pid`
         if kill -0 $TARGET_PID > /dev/null 2>&1; then
-          echo stopping $command
+          echo stopping worker
           kill $TARGET_PID
           sleep $STOP_TIMEOUT
           if kill -0 $TARGET_PID > /dev/null 2>&1; then
-            echo "$command did not stop gracefully after $STOP_TIMEOUT seconds: killing with kill -9"
+            echo "worker did not stop gracefully after $STOP_TIMEOUT seconds: killing with kill -9"
             kill -9 $TARGET_PID
           fi
         else
-          echo no $command to stop
+          echo no worker to stop
         fi
         rm -f $pid
       else
-        echo no $command to stop
+        echo no worker to stop
       fi
       ;;
   (status)
       if [ -f $pid ]; then
         TARGET_PID=`cat $pid`
         if kill -0 $TARGET_PID > /dev/null 2>&1; then
-          echo $command is running
+          echo worker is running
         else
-          echo $command is stop
+          echo worker is stop
         fi
       else
-        echo $command not found
+        echo worker not found
       fi
       ;;
   (restart)
       if [ -f $pid ]; then
         TARGET_PID=`cat $pid`
         if kill -0 $TARGET_PID > /dev/null 2>&1; then
-          echo stopping $command
+          echo stopping worker
           kill $TARGET_PID
           sleep $STOP_TIMEOUT
           if kill -0 $TARGET_PID > /dev/null 2>&1; then
-            echo "$command did not stop gracefully after $STOP_TIMEOUT seconds: killing with kill -9"
+            echo "worker did not stop gracefully after $STOP_TIMEOUT seconds: killing with kill -9"
             kill -9 $TARGET_PID
           fi
         else
-          echo no $command to stop
+          echo no worker to stop
         fi
         rm -f $pid
       else
-        echo no $command to stop
+        echo no worker to stop
       fi
       sleep 2s
       [ -w "$DDH_PID_DIR" ] ||  mkdir -p "$DDH_PID_DIR"
       if [ -f $pid ]; then
           if kill -0 `cat $pid` > /dev/null 2>&1; then
-            echo $command running as process `cat $pid`.  Stop it first.
+            echo worker running as process `cat $pid`.  Stop it first.
             exit 1
           fi
       fi
-      echo starting $command, logging to $log
+      echo starting worker, logging to $log
 
       exec_command="$DDH_OPTS $LOG_FILE $JMX -classpath $DDH_CONF_DIR:$DDH_LIB_JARS $CLASS"
 
@@ -182,4 +198,4 @@ case $startStop in
 
 esac
 
-echo "End $startStop $command."
+echo "End $startStop worker."

@@ -69,7 +69,7 @@ public class HbaseHandlerStrategy extends AbstractHandlerStrategy implements Ser
             }
         }
         if (command.getCommandType().equals(CommandType.INSTALL_SERVICE)) {
-            String hadoopHome = PropertyUtils.getString("HADOOP_HOME");
+            String hadoopHome = PropertyUtils.getString(Constants.DATASOPHON_HADOOP_HOME);
             ShellUtils.exceShell("sudo -u hdfs " + hadoopHome + "/bin/hdfs dfs -mkdir -p /hbase");
             ShellUtils.exceShell("sudo -u hdfs " + hadoopHome + "/bin/hdfs dfs -chown hbase:hadoop /hbase");
             ShellUtils.exceShell("sudo -u hdfs " + hadoopHome + "/bin/hdfs dfs -chmod 777 /hbase");

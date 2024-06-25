@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.typesafe.config.ConfigValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +54,13 @@ import akka.remote.AssociatedEvent;
 import akka.remote.AssociationErrorEvent;
 import akka.remote.DisassociatedEvent;
 
+import static com.datasophon.common.Constants.AKKA_REMOTE_NETTY_TCP_HOSTNAME;
+
 public class WorkerApplicationServer {
     
     private static final Logger logger = LoggerFactory.getLogger(WorkerApplicationServer.class);
     
     private static final String USER_DIR = "user.dir";
-    
-    private static final String MASTER_HOST = "masterHost";
     
     private static final String WORKER = "worker";
     
@@ -72,7 +73,7 @@ public class WorkerApplicationServer {
     public static void main(String[] args) throws UnknownHostException {
         String hostname = InetAddress.getLocalHost().getHostName();
         String workDir = System.getProperty(USER_DIR);
-        String masterHost = PropertyUtils.getString(MASTER_HOST);
+        String masterHost = PropertyUtils.getString(Constants.MASTER_HOST);
         String cpuArchitecture = ShellUtils.getCpuArchitecture();
         
         CacheUtils.put(Constants.HOSTNAME, hostname);
@@ -90,7 +91,7 @@ public class WorkerApplicationServer {
         createDefaultUser(userMap);
         
         tellToMaster(hostname, workDir, masterHost, cpuArchitecture, system);
-        logger.info("start worker");
+        logger.info("start worker...");
         
         /*
          * registry hooks, which are called before the process exits
@@ -128,7 +129,8 @@ public class WorkerApplicationServer {
     }
     
     private static ActorSystem initActor(String hostname) {
-        Config config = ConfigFactory.parseString("akka.remote.netty.tcp.hostname=" + hostname);
+        Config config = ConfigFactory.empty()
+                .withValue(AKKA_REMOTE_NETTY_TCP_HOSTNAME, ConfigValueFactory.fromAnyRef(hostname));
         ActorSystem system =
                 ActorSystem.create(Constants.DATASOPHON, config.withFallback(ConfigFactory.load()));
         system.actorOf(Props.create(WorkerActor.class), WORKER);
@@ -143,7 +145,8 @@ public class WorkerApplicationServer {
         eventStream.subscribe(remoteEventActor, AssociatedEvent.class);
         eventStream.subscribe(remoteEventActor, DisassociatedEvent.class);
     }
-    
+
+    // TODO 优化掉脚本
     private static void tellToMaster(
                                      String hostname,
                                      String workDir,
@@ -162,7 +165,7 @@ public class WorkerApplicationServer {
         StartWorkerMessage startWorkerMessage =
                 JSONObject.parseObject(result.getExecOut(), StartWorkerMessage.class);
         startWorkerMessage.setCpuArchitecture(cpuArchitecture);
-        startWorkerMessage.setClusterId(PropertyUtils.getInt("clusterId"));
+        startWorkerMessage.setClusterId(PropertyUtils.getInt(Constants.DATASOPHON_CLUSTER_ID));
         startWorkerMessage.setHostname(hostname);
         workerStartActor.tell(startWorkerMessage, ActorRef.noSender());
     }

@@ -23,6 +23,7 @@ import com.datasophon.common.command.HostCheckCommand;
 import com.datasophon.common.command.ServiceRoleCheckCommand;
 import com.datasophon.common.enums.ClusterCommandType;
 
+import com.typesafe.config.ConfigValueFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import scala.concurrent.Await;
@@ -50,6 +51,8 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.util.Timeout;
 
+import static com.datasophon.common.Constants.AKKA_REMOTE_NETTY_TCP_HOSTNAME;
+
 public class ActorUtils {
     
     private static final Logger logger = LoggerFactory.getLogger(ActorUtils.class);
@@ -58,8 +61,7 @@ public class ActorUtils {
     
     public static final String DATASOPHON = "datasophon";
     
-    public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
-    
+
     private static Random rand;
     
     private ActorUtils() throws NoSuchAlgorithmException {
@@ -67,7 +69,8 @@ public class ActorUtils {
     
     public static void init() throws UnknownHostException, NoSuchAlgorithmException {
         String hostname = InetAddress.getLocalHost().getHostName();
-        Config config = ConfigFactory.parseString(AKKA_REMOTE_NETTY_TCP_HOSTNAME + "=" + hostname);
+        Config config = ConfigFactory.empty()
+                .withValue(AKKA_REMOTE_NETTY_TCP_HOSTNAME, ConfigValueFactory.fromAnyRef(hostname));
         actorSystem = ActorSystem.create(DATASOPHON, config.withFallback(ConfigFactory.load()));
         actorSystem.actorOf(Props.create(WorkerStartActor.class), getActorRefName(WorkerStartActor.class));
         ActorRef serviceRoleCheckActor = actorSystem.actorOf(Props.create(ServiceRoleCheckActor.class),

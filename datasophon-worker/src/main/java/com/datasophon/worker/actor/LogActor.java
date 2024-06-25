@@ -55,14 +55,14 @@ public class LogActor extends UntypedActor {
             ExecResult execResult = new ExecResult();
             String logStr = "can not find log file";
             if (logFileName.startsWith(StrUtil.SLASH) && FileUtil.exist(logFileName)) {
-                logStr = FileUtils.readLastRows(logFileName, Charset.defaultCharset(), PropertyUtils.getInt("rows"));
+                logStr = FileUtils.readLastRows(logFileName, Charset.defaultCharset(), PropertyUtils.getInt(Constants.DATASOPHON_ROWS));
             } else if (FileUtil.exist(Constants.INSTALL_PATH + Constants.SLASH + command.getDecompressPackageName()
                     + Constants.SLASH + logFileName)) {
                 logStr = FileUtils
                         .readLastRows(
                                 Constants.INSTALL_PATH + Constants.SLASH + command.getDecompressPackageName()
                                         + Constants.SLASH + logFileName,
-                                Charset.defaultCharset(), PropertyUtils.getInt("rows"));
+                                Charset.defaultCharset(), PropertyUtils.getInt(Constants.DATASOPHON_ROWS));
             }
             execResult.setExecResult(true);
             execResult.setExecOut(logStr);
