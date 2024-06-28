@@ -21,8 +21,13 @@ public enum OlapOpsType {
     
     ADD_BE(1, "backend"),
     ADD_FE_FOLLOWER(2, "follower"),
-    ADD_FE_OBSERVER(3, "observer");
-    
+    ADD_FE_OBSERVER(3, "observer"),
+    ADD_CN(4, "computeNode"),
+    DROP_FE_FOLLOWER(5, "follower"),
+    DROP_BE(6, "backend"),
+    DROP_CN(7, "computeNode"),
+    DROP_FE_OBSERVER(8, "observer");
+
     private int value;
     
     private String desc;

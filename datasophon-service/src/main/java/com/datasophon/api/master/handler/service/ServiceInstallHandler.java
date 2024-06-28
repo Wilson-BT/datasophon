@@ -24,6 +24,7 @@ import com.datasophon.api.utils.SpringTool;
 import com.datasophon.common.Constants;
 import com.datasophon.common.command.InstallServiceRoleCommand;
 import com.datasophon.common.model.ServiceRoleInfo;
+import com.datasophon.common.utils.Asserts;
 import com.datasophon.common.utils.ExecResult;
 import com.datasophon.dao.entity.ClusterHostDO;
 import com.datasophon.dao.entity.ClusterServiceRoleInstanceEntity;
@@ -92,10 +93,9 @@ public class ServiceInstallHandler extends ServiceHandler {
         Future<Object> future = Patterns.ask(actorSelection, installServiceRoleCommand, timeout);
         try {
             ExecResult installResult = (ExecResult) Await.result(future, timeout.duration());
-            if (Objects.nonNull(installResult) && installResult.getExecResult()) {
-                if (Objects.nonNull(getNext())) {
-                    return getNext().handlerRequest(serviceRoleInfo);
-                }
+            logger.info("install service role {} result {}", serviceRoleInfo.getName(), installResult.toString());
+            if (Asserts.isNotNull(installResult) && installResult.getExecResult() && Asserts.isNotNull(getNext())) {
+                return getNext().handlerRequest(serviceRoleInfo);
             }
             return installResult;
         } catch (Exception e) {

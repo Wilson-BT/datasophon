@@ -45,6 +45,7 @@ public class ServiceRoleStrategyContext {
         map.put("ZkServer", new ZkServerHandlerStrategy("ZOOKEEPER", "ZkServer"));
         map.put("KafkaBroker", new KafkaHandlerStrategy("KAFKA", "KafkaBroker"));
         map.put("SRBE", new BEHandlerStrategy("STARROCKS", "SRBE"));
+        map.put("SRCN", new CNHandlerStrategy("STARROCKS", "SRCN"));
         map.put("DorisBE", new BEHandlerStrategy("DORIS", "DorisBE"));
         map.put("HistoryServer", new HistoryServerHandlerStrategy("YARN", "HistoryServer"));
         

@@ -43,8 +43,8 @@ public class LogActor extends UntypedActor {
     @Override
     public void onReceive(Object msg) throws Throwable {
         if (msg instanceof GetLogCommand) {
-            logger.info("get query log command");
             GetLogCommand command = (GetLogCommand) msg;
+            logger.info("get query log command: {}.", command.toString());
             HashMap<String, String> paramMap = new HashMap<>();
             String hostName = InetAddress.getLocalHost().getHostName();
             paramMap.put("${user}", "root");
@@ -53,7 +53,7 @@ public class LogActor extends UntypedActor {
                     PlaceholderUtils.replacePlaceholders(command.getLogFile(), paramMap, Constants.REGEX_VARIABLE);
             
             ExecResult execResult = new ExecResult();
-            String logStr = "can not find log file";
+            String logStr = "can not find log file " + logFileName;
             if (logFileName.startsWith(StrUtil.SLASH) && FileUtil.exist(logFileName)) {
                 logStr = FileUtils.readLastRows(logFileName, Charset.defaultCharset(), PropertyUtils.getInt(Constants.DATASOPHON_ROWS));
             } else if (FileUtil.exist(Constants.INSTALL_PATH + Constants.SLASH + command.getDecompressPackageName()

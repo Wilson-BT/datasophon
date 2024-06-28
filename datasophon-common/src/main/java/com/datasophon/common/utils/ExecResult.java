@@ -20,7 +20,7 @@ package com.datasophon.common.utils;
 import java.io.Serializable;
 
 public class ExecResult implements Serializable {
-    
+
     private boolean execResult = false;
     
     private String execOut;
@@ -49,5 +49,14 @@ public class ExecResult implements Serializable {
     
     public void setExecOut(String execOut) {
         this.execOut = execOut;
+    }
+
+    @Override
+    public String toString() {
+        return "ExecResult{" +
+                "execResult=" + execResult +
+                ", execOut='" + execOut + '\'' +
+                ", execErrOut='" + execErrOut + '\'' +
+                '}';
     }
 }

@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.UntypedActor;
 
+/**
+ * receive start command and start service role
+ */
 public class StartServiceActor extends UntypedActor {
     
     private static final Logger logger = LoggerFactory.getLogger(StartServiceActor.class);

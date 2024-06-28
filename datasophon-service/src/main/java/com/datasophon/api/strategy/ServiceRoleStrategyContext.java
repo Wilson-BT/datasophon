@@ -45,6 +45,7 @@ public class ServiceRoleStrategyContext {
         strategyMap.put("DorisFE", new FEHandlerStartegy());
         strategyMap.put("DorisFEObserver", new FEObserverHandlerStartegy());
         strategyMap.put("SRBE", new BEHandlerStartegy());
+        strategyMap.put("SRCN", new CNHandlerStartegy());
         strategyMap.put("DorisBE", new BEHandlerStartegy());
         strategyMap.put("Krb5Kdc", new Krb5KdcHandlerStrategy());
         strategyMap.put("KAdmin", new KAdminHandlerStrategy());
@@ -80,6 +81,7 @@ public class ServiceRoleStrategyContext {
         serviceNameMap.put("DorisFE", "DORIS");
         serviceNameMap.put("DorisFEObserver", "DORIS");
         serviceNameMap.put("SRBE", "STARROCKS");
+        serviceNameMap.put("SRCN", "STARROCKS");
         serviceNameMap.put("DorisBE", "DORIS");
         serviceNameMap.put("Krb5Kdc", "KERBEROS");
         serviceNameMap.put("KAdmin", "KERBEROS");

@@ -257,29 +257,30 @@ public class ProcessUtils {
             List<ClusterServiceCommandHostCommandEntity> hostCommandList =
                     service.getHostCommandListByCommandId(commandId);
             for (ClusterServiceCommandHostCommandEntity hostCommandEntity : hostCommandList) {
-                if (hostCommandEntity.getCommandState() == CommandState.RUNNING) {
-                    logger.info("{} host command  set to cancel", hostCommandEntity.getCommandName());
-                    CancelCommandMap.put(hostCommandEntity.getHostCommandId(), hostCommandEntity.getCommandName());
-                    
-                    hostCommandEntity.setCommandState(CommandState.CANCEL);
-                    hostCommandEntity.setCommandProgress(100);
-                    service.updateByHostCommandId(hostCommandEntity);
-                    UpdateCommandHostMessage message = new UpdateCommandHostMessage();
-                    message.setCommandId(commandId);
-                    message.setCommandHostId(hostCommandEntity.getCommandHostId());
-                    message.setHostname(hostCommandEntity.getHostname());
-                    if (hostCommandEntity.getServiceRoleType() == RoleType.MASTER) {
-                        message.setServiceRoleType(ServiceRoleType.MASTER);
-                    } else {
-                        message.setServiceRoleType(ServiceRoleType.WORKER);
-                    }
-                    ActorUtils.actorSystem.scheduler().scheduleOnce(
-                            FiniteDuration.apply(3L, TimeUnit.SECONDS),
-                            commandActor,
-                            message,
-                            ActorUtils.actorSystem.dispatcher(),
-                            ActorRef.noSender());
+                if (!CommandState.RUNNING.equals(hostCommandEntity.getCommandState())) {
+                    continue;
                 }
+                logger.info("{} host {} command set to cancel", hostCommandEntity.getCommandName(),hostCommandEntity.getHostname());
+                CancelCommandMap.put(hostCommandEntity.getHostCommandId(), hostCommandEntity.getCommandName());
+
+                hostCommandEntity.setCommandState(CommandState.CANCEL);
+                hostCommandEntity.setCommandProgress(100);
+                service.updateByHostCommandId(hostCommandEntity);
+                UpdateCommandHostMessage message = new UpdateCommandHostMessage();
+                message.setCommandId(commandId);
+                message.setCommandHostId(hostCommandEntity.getCommandHostId());
+                message.setHostname(hostCommandEntity.getHostname());
+                if (hostCommandEntity.getServiceRoleType() == RoleType.MASTER) {
+                    message.setServiceRoleType(ServiceRoleType.MASTER);
+                } else {
+                    message.setServiceRoleType(ServiceRoleType.WORKER);
+                }
+                ActorUtils.actorSystem.scheduler().scheduleOnce(
+                        FiniteDuration.apply(3L, TimeUnit.SECONDS),
+                        commandActor,
+                        message,
+                        ActorUtils.actorSystem.dispatcher(),
+                        ActorRef.noSender());
             }
         }
     }

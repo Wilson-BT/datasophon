@@ -123,7 +123,7 @@ public class ActorUtils {
             logger.warn("{} actor not found , create it", actorName);
         }
         if (Objects.isNull(actorRef)) {
-            logger.info("create actor {}", actorName);
+            logger.info("create actor {} from {}", actorName,actorClass);
             actorRef = createActor(actorClass, actorName);
         } else {
             logger.info("find actor {}", actorName);

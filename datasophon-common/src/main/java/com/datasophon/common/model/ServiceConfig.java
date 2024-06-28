@@ -60,5 +60,16 @@ public class ServiceConfig implements Serializable {
     private boolean configWithHA;
     
     private String separator;
-    
+
+    // toString 方法
+    @Override
+    public String toString() {
+        return "ServiceConfig{" + "name='" + name + '\'' + ", value=" + value + ", label='" + label + '\''
+                + ", description='" + description + '\'' + ", required=" + required + ", type='" + type + '\''
+                + ", configurableInWizard=" + configurableInWizard + ", defaultValue=" + defaultValue + ", minValue="
+                + minValue + ", maxValue=" + maxValue + ", unit='" + unit + '\'' + ",hidden=" + hidden + ", selectValue="
+                + selectValue + ", configType='" + configType + '\'' + ", configWithKerberos=" + configWithKerberos
+                + ", configWithRack=" + configWithRack + ", configWithHA=" + configWithHA + ", separator='" + separator
+                + '\'' + '}';
+            }
 }

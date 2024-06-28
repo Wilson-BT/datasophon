@@ -34,6 +34,7 @@ import com.datasophon.common.enums.ServiceRoleType;
 import com.datasophon.common.model.Generators;
 import com.datasophon.common.model.ServiceConfig;
 import com.datasophon.common.model.ServiceRoleInfo;
+import com.datasophon.common.utils.Asserts;
 import com.datasophon.common.utils.ExecResult;
 import com.datasophon.dao.entity.ClusterServiceRoleGroupConfig;
 import com.datasophon.dao.entity.ClusterServiceRoleInstanceEntity;
@@ -122,7 +123,7 @@ public class MasterServiceActor extends UntypedActor {
                                     serviceRoleInfo.getHostname());
                             
                             execResult = ProcessUtils.startInstallService(serviceRoleInfo);
-                            if (Objects.nonNull(execResult) && execResult.getExecResult()) {
+                            if (Asserts.isNotNull(execResult) && execResult.getExecResult()) {
                                 ProcessUtils.saveServiceInstallInfo(serviceRoleInfo);
                                 successNum += 1;
                                 if (ServiceRoleType.MASTER.equals(serviceRoleInfo.getRoleType())

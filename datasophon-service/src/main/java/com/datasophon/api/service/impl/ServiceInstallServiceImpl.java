@@ -19,6 +19,7 @@
 
 package com.datasophon.api.service.impl;
 
+import static com.datasophon.api.enums.Status.BE_CN_CANNOT_DEPLOY_ON_SAME_NODE;
 import static com.datasophon.common.Constants.META_PATH;
 
 import com.datasophon.api.enums.Status;
@@ -54,6 +55,7 @@ import com.datasophon.common.model.ServiceNode;
 import com.datasophon.common.model.ServiceNodeEdge;
 import com.datasophon.common.model.ServiceRoleHostMapping;
 import com.datasophon.common.model.ServiceRoleInfo;
+import com.datasophon.common.utils.Asserts;
 import com.datasophon.common.utils.CollectionUtils;
 import com.datasophon.common.utils.PlaceholderUtils;
 import com.datasophon.common.utils.Result;
@@ -86,6 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -288,7 +291,7 @@ public class ServiceInstallServiceImpl implements ServiceInstallService {
     public Result saveServiceRoleHostMapping(Integer clusterId, List<ServiceRoleHostMapping> list) {
         
         checkOnSameNode(clusterId, list);
-        
+        CnBeNodeDeployCheck(list);
         ClusterInfoEntity clusterInfo = clusterInfoService.getById(clusterId);
         String hostMapKey =
                 clusterInfo.getClusterCode()
@@ -298,7 +301,7 @@ public class ServiceInstallServiceImpl implements ServiceInstallService {
         if (CacheUtils.constainsKey(hostMapKey)) {
             map = (HashMap<String, List<String>>) CacheUtils.get(hostMapKey);
         }
-        
+
         for (ServiceRoleHostMapping serviceRoleHostMapping : list) {
             serviceValidation(serviceRoleHostMapping);
             
@@ -321,7 +324,35 @@ public class ServiceInstallServiceImpl implements ServiceInstallService {
                 map);
         return Result.success();
     }
-    
+
+    /**
+     * BE and CN should not deploy on same node
+     * @param list
+     */
+    private void CnBeNodeDeployCheck(List<ServiceRoleHostMapping> list) {
+        ServiceRoleHostMapping cnNode = null;
+        ServiceRoleHostMapping beNode = null;
+        for(ServiceRoleHostMapping serviceRoleHostMapping: list){
+            if (serviceRoleHostMapping.getServiceRole().equals("SRBE")){
+                beNode = serviceRoleHostMapping;
+            }
+            if (serviceRoleHostMapping.getServiceRole().equals("SRCN")){
+                cnNode = serviceRoleHostMapping;
+            }
+        }
+        if (Asserts.isNotNull(cnNode) && CollectionUtils.isNotEmpty(cnNode.getHosts())
+            && Asserts.isNotNull(beNode) && CollectionUtils.isNotEmpty(beNode.getHosts())){
+            // 检查是否在同一个节点上
+            ServiceRoleHostMapping finalCnNode = cnNode;
+            List<String> sameNodeList = beNode.getHosts().stream().filter(beHost -> finalCnNode.getHosts().contains(beHost))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(sameNodeList)){
+                logger.warn(BE_CN_CANNOT_DEPLOY_ON_SAME_NODE.getMsg());
+                throw new ServiceException(BE_CN_CANNOT_DEPLOY_ON_SAME_NODE.getMsg());
+            }
+        }
+    }
+
     @Override
     public Result saveHostServiceRoleMapping(Integer clusterId, List<HostServiceRoleMapping> list) {
         ClusterInfoEntity clusterInfo = clusterInfoService.getById(clusterId);
@@ -672,6 +703,7 @@ public class ServiceInstallServiceImpl implements ServiceInstallService {
                 }
                 configFileMap.put(generators, serviceConfigs);
             }
+            logger.info(configFileMap.toString());
         }
     }
     
@@ -755,9 +787,13 @@ public class ServiceInstallServiceImpl implements ServiceInstallService {
         if ("DorisFE".equals(serviceRole) && (hosts.size() & 1) == 0) {
             throw new ServiceException(Status.ODD_NUMBER_ARE_REQUIRED_FOR_DORISFE.getMsg());
         }
+        if ("SRFE".equals(serviceRole) && (hosts.size() & 1) == 0) {
+            throw new ServiceException(Status.ODD_NUMBER_ARE_REQUIRED_FOR_SRFE.getMsg());
+        }
         if ("KyuubiServer".equals(serviceRole) && hosts.size() != 2) {
             throw new ServiceException(Status.TWO_KYUUBISERVERS_NEED_TO_BE_DEPLOYED.getMsg());
         }
+
     }
     
     private List<ServiceConfig> listServiceConfigByServiceInstance(

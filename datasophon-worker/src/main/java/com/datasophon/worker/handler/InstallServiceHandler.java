@@ -20,10 +20,7 @@ package com.datasophon.worker.handler;
 import com.datasophon.common.Constants;
 import com.datasophon.common.cache.CacheUtils;
 import com.datasophon.common.command.InstallServiceRoleCommand;
-import com.datasophon.common.utils.ExecResult;
-import com.datasophon.common.utils.FileUtils;
-import com.datasophon.common.utils.PropertyUtils;
-import com.datasophon.common.utils.ShellUtils;
+import com.datasophon.common.utils.*;
 import com.datasophon.worker.strategy.resource.AppendLineStrategy;
 import com.datasophon.worker.strategy.resource.DownloadStrategy;
 import com.datasophon.worker.strategy.resource.EmptyStrategy;
@@ -72,8 +69,8 @@ public class InstallServiceHandler {
         this.frameCode = frameCode;
         this.serviceName = serviceName;
         this.serviceRoleName = serviceRoleName;
-        String loggerName = String.format("%s-%s-%s-%s", TaskConstants.TASK_LOG_LOGGER_NAME, frameCode, serviceName,
-                serviceRoleName);
+        String loggerName = String.format("%s-%s-%s-%s-%s", TaskConstants.TASK_LOG_LOGGER_NAME, frameCode, serviceName,
+                serviceRoleName, InstallServiceHandler.class.getName());
         logger = LoggerFactory.getLogger(loggerName);
     }
     
@@ -152,8 +149,8 @@ public class InstallServiceHandler {
             }
             execResult.setExecResult(result);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            execResult.setExecOut(e.getMessage());
+            log.error(ExceptionUtil.stacktraceToString(e));
+            execResult.setExecOut(ExceptionUtil.stacktraceToString(e));
         }
         return execResult;
     }
@@ -219,7 +216,7 @@ public class InstallServiceHandler {
         command.add(sourceTarGzFile);
         command.add("-C");
         command.add(targetDir);
-        ExecResult execResult = ShellUtils.execWithStatus(targetDir, command, 120, logger);
+        ExecResult execResult = ShellUtils.execWithStatus(targetDir, command, 300, logger);
         return execResult.getExecResult();
     }
     

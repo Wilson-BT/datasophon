@@ -53,5 +53,13 @@ public class Generators implements Serializable {
     public int hashCode() {
         return filename.hashCode();
     }
+
+    // toString method
+    @Override
+    public String toString() {
+        return "Generators{" + "filename='" + filename + '\'' + ", configFormat='" + configFormat + '\''
+                + ", outputDirectory='" + outputDirectory + '\'' + ", includeParams=" + includeParams
+                + ", templateName='" + templateName + '\'' + '}';
+            }
     
 }

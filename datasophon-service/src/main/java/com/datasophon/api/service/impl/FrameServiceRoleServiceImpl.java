@@ -114,8 +114,8 @@ public class FrameServiceRoleServiceImpl extends ServiceImpl<FrameServiceRoleMap
                 .list();
         ClusterInfoEntity clusterInfo = clusterInfoService.getById(clusterId);
         String key = clusterInfo.getClusterCode() + Constants.UNDERLINE + Constants.SERVICE_ROLE_HOST_MAPPING;
-        List<String> hosts = new ArrayList<>();
         for (FrameServiceRoleEntity role : list) {
+            List<String> hosts = new ArrayList<>();
             FrameServiceEntity frameServiceEntity = frameService.getById(role.getServiceId());
             List<ClusterServiceRoleInstanceEntity> roleInstanceList =
                     roleInstanceService.list(new QueryWrapper<ClusterServiceRoleInstanceEntity>()

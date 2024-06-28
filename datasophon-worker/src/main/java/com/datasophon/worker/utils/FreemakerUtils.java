@@ -73,6 +73,7 @@ public class FreemakerUtils {
                                           String decompressPackageName,
                                           String extPath) throws IOException, TemplateException {
         // 1.加载模板
+        logger.info("load Generators : {}", generators.toString());
         // 创建核心配置对象
         Configuration config = new Configuration(Configuration.getVersion());
         // 设置加载的目录

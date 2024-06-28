@@ -36,19 +36,19 @@ import org.slf4j.LoggerFactory;
 
 public class ShellUtils {
     
-    private static ProcessBuilder processBuilder = new ProcessBuilder();
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ShellUtils.class);
     
     public static Process exec(List<String> command) {
         Process process = null;
         try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
             String[] commands = new String[command.size()];
             command.toArray(commands);
             processBuilder.command(commands);
             process = processBuilder.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exec shell Failed,{}",ExceptionUtil.stacktraceToString(e));
         }
         return process;
     }
@@ -62,19 +62,14 @@ public class ShellUtils {
         StringBuffer stringBuffer = new StringBuffer();
         try {
             // 执行脚本
-            Process ps = Runtime.getRuntime().exec(new String[]{"sh", "-c", pathOrCommand});
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command(new String[]{"sh", "-c", pathOrCommand});
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
             // 只能接收脚本echo打印的数据，并且是echo打印的最后一次数据
-            BufferedInputStream in = new BufferedInputStream(ps.getInputStream());
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line;
-            while ((line = br.readLine()) != null) {
-                stringBuffer.append(line);
-                stringBuffer.append(System.lineSeparator());
-            }
-            in.close();
-            br.close();
+            getOutput(process);
+            int exitValue = process.waitFor();
             String execOut = stringBuffer.toString();
-            int exitValue = ps.waitFor();
             if (0 == exitValue) {
                 logger.info("{} command exec out is : {} {}", pathOrCommand, System.lineSeparator(), execOut);
                 result.setExecResult(true);
@@ -83,10 +78,9 @@ public class ShellUtils {
                 result.setExecOut("call shell failed. error code is :" + exitValue);
                 logger.error("{} command exec out is : {} {}", pathOrCommand, System.lineSeparator(), execOut);
             }
-            
         } catch (Exception e) {
             result.setExecOut(e.getMessage());
-            logger.error(e.getMessage(), e);
+            logger.error(ExceptionUtil.stacktraceToString(e));
         }
         return result;
     }
@@ -120,6 +114,8 @@ public class ShellUtils {
         Process process = null;
         ExecResult result = new ExecResult();
         try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            logger.info("start exec command : {}", command.toString());
             processBuilder.directory(new File(workPath));
             processBuilder.command(command);
             processBuilder.redirectErrorStream(true);
@@ -145,6 +141,8 @@ public class ShellUtils {
         Process process = null;
         ExecResult result = new ExecResult();
         try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            logger.info("start exec command : {}, timeout for {}s.", command.toString(), timeout);
             processBuilder.directory(new File(workPath));
             processBuilder.command(command);
             processBuilder.redirectErrorStream(true);
@@ -160,8 +158,8 @@ public class ShellUtils {
             }
             return result;
         } catch (Exception e) {
-            result.setExecErrOut(e.getMessage());
-            logger.error(e.getMessage(), e);
+            result.setExecErrOut(ExceptionUtil.stacktraceToString(e));
+            logger.error(ExceptionUtil.stacktraceToString(e));
         }
         return result;
     }
@@ -182,7 +180,7 @@ public class ShellUtils {
                 }
                 logger.info(stringBuffer.toString());
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.error(ExceptionUtil.stacktraceToString(e));
             } finally {
                 closeQuietly(inReader);
             }
@@ -197,7 +195,7 @@ public class ShellUtils {
                 }
                 logger.error(stringBuffer.toString());
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.error(ExceptionUtil.stacktraceToString(e));
             } finally {
                 closeQuietly(errorReader);
             }

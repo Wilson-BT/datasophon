@@ -66,7 +66,7 @@ public class ConfigureServiceHandler {
     public ConfigureServiceHandler(String serviceName, String serviceRoleName) {
         this.serviceName = serviceName;
         this.serviceRoleName = serviceRoleName;
-        String loggerName = String.format("%s-%s-%s", TaskConstants.TASK_LOG_LOGGER_NAME, serviceName, serviceRoleName);
+        String loggerName = String.format("%s-%s-%s-%s", TaskConstants.TASK_LOG_LOGGER_NAME, serviceName, serviceRoleName,ConfigureServiceHandler.class.getName());
         logger = LoggerFactory.getLogger(loggerName);
     }
     
@@ -77,7 +77,7 @@ public class ConfigureServiceHandler {
                                 RunAs runAs) {
         ExecResult execResult = new ExecResult();
         try {
-            
+            logger.info("Start to configure cofigFileMap: {},decompressPackageName:{},serviceRoleName:{},runAs:{}", cofigFileMap,decompressPackageName,serviceRoleName,runAs);
             String hostName = InetAddress.getLocalHost().getHostName();
             HashMap<String, String> paramMap = new HashMap<>();
             paramMap.put("${host}", hostName);

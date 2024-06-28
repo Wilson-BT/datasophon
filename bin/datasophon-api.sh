@@ -127,7 +127,14 @@ case $startStop in
         fi
         rm -f $pid
       else
-        echo no $command to stop
+        TARGET_PID=`ps -ef | grep datasophon-manager | grep -v grep | awk '{print $2}'`
+        if kill -0 $TARGET_PID > /dev/null 2>&1; then
+          echo stopping $command
+          kill $TARGET_PID
+          sleep $STOP_TIMEOUT
+        else
+          echo no $command to stop
+        fi
       fi
       ;;
   (restart)

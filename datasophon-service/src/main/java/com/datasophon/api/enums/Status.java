@@ -89,7 +89,8 @@ public enum Status {
     ODD_NUMBER_ARE_REQUIRED_FOR_DORISFE(10040, "The Number of DorisFE must be an odd number.", "DorisFE个数必须是奇数"),
     NO_SERVICE_ROLE_SELECTED(10041, "No service role selected", "未选择需要安装的服务实例"),
     TWO_KYUUBISERVERS_NEED_TO_BE_DEPLOYED(10042, "two kyuubiServer deployments are required", "KyuubiServer需要两个节点"),
-    ;
+    BE_CN_CANNOT_DEPLOY_ON_SAME_NODE(10043,"Be and CN can not deploy on the same node.","BE 和 CN 不能部署在同一个节点上"),
+    ODD_NUMBER_ARE_REQUIRED_FOR_SRFE(10044, "The Number of StarRocksFE must be an odd number.", "StarRocksFE个数必须是奇数");
     
     private final int code;
     private final String enMsg;

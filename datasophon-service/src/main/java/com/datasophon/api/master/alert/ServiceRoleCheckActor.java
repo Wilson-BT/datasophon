@@ -56,6 +56,7 @@ public class ServiceRoleCheckActor extends UntypedActor {
                                             "KAdmin",
                                             "SRFE",
                                             "SRBE",
+                                            "SRCN",
                                             "DorisFE",
                                             "DorisFEObserver",
                                             "DorisBE",

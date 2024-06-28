@@ -40,12 +40,23 @@ public class OlapUtils {
         String sql = "ALTER SYSTEM add FOLLOWER \"" + hostname + ":9010\";";
         logger.info("Add fe to cluster , the sql is {}", sql);
         try {
-            executeSql(feMaster, hostname, sql);
+            executeSql(feMaster, sql);
             execResult.setExecResult(true);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
+        }
+        return execResult;
+    }
+
+    public static ExecResult dropFollower(String feMaster, String hostname) {
+        ExecResult execResult = new ExecResult();
+        String sql = "ALTER SYSTEM drop FOLLOWER \"" + hostname + ":9010\";";
+        logger.info("drop from to cluster , the sql is {}", sql);
+        try {
+            executeSql(feMaster, sql);
+            execResult.setExecResult(true);
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
         }
         return execResult;
     }
@@ -55,12 +66,10 @@ public class OlapUtils {
         String sql = "ALTER SYSTEM add OBSERVER \"" + hostname + ":9010\";";
         logger.info("Add fe to cluster , the sql is {}", sql);
         try {
-            executeSql(feMaster, hostname, sql);
+            executeSql(feMaster, sql);
             execResult.setExecResult(true);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
         }
         return execResult;
     }
@@ -71,24 +80,42 @@ public class OlapUtils {
         logger.info("Add be to cluster , the sql is {}", sql);
         
         try {
-            executeSql(feMaster, hostname, sql);
+            executeSql(feMaster, sql);
             execResult.setExecResult(true);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
+        }
+        return execResult;
+    }
+
+    public static ExecResult addComputeNode(String feMaster, String hostname) {
+        ExecResult execResult = new ExecResult();
+        String sql = "ALTER SYSTEM add COMPUTE NODE  \"" + hostname + ":9050\";";
+        logger.info("Add be to cluster , the sql is {}", sql);
+        try {
+            executeSql(feMaster, sql);
+            execResult.setExecResult(true);
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
         }
         return execResult;
     }
     
-    private static void executeSql(String feMaster, String hostname,
+    private static void executeSql(String feMaster,
                                    String sql) throws ClassNotFoundException, SQLException {
-        Connection connection = getConnection(feMaster);
-        Statement statement = connection.createStatement();
-        if (Objects.nonNull(connection) && Objects.nonNull(statement)) {
-            statement.executeUpdate(sql);
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = getConnection(feMaster);
+            statement = connection.createStatement();
+            if (Objects.nonNull(connection) && Objects.nonNull(statement)) {
+                statement.executeUpdate(sql);
+            }
+        } catch (Exception e){
+            logger.error(ExceptionUtil.stacktraceToString(e));
+        } finally {
+            close(connection, statement);
         }
-        close(connection, statement);
     }
     
     public static ExecResult addFollowerBySqlClient(String feMaster,
@@ -129,19 +156,34 @@ public class OlapUtils {
         // logger.info("sqlCommand is {}", sqlCommand);
         return ShellUtils.exceShell(sqlCommand);
     }
+
+    public static ExecResult addCNBySqlClient(String feMaster,
+                                                   String hostname) {
+        String sqlCommand =
+                "mysql -h"
+                        + feMaster
+                        + " -uroot -P9030 -e"
+                        + " ALTER SYSTEM ADD COMPUTE NODE  \""
+                        + hostname
+                        + ":9050\"';";
+        // logger.info("sqlCommand is {}", sqlCommand);
+        return ShellUtils.exceShell(sqlCommand);
+    }
     
     private static Connection getConnection(String feMaster) throws ClassNotFoundException, SQLException {
         String username = "root";
-        String password = "";
+//        String password = "";
         String url = "jdbc:mysql://" + feMaster + ":9030";
         // 加载驱动
         Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(url, username, password);
+        return DriverManager.getConnection(url, username, null);
     }
     
     private static void close(Connection connection, Statement statement) throws SQLException {
-        if (Objects.nonNull(connection) && Objects.nonNull(statement)) {
+        if (Objects.nonNull(statement)) {
             statement.close();
+        }
+        if (Objects.nonNull(connection)){
             connection.close();
         }
     }
@@ -169,7 +211,13 @@ public class OlapUtils {
         // logger.info("sql is {}",sql);
         return executeQueryProcInfo(feMaster, sql);
     }
-    
+
+    public static List<ProcInfo> showComputeNodes(String feMaster) throws SQLException, ClassNotFoundException {
+        String sql = "SHOW PROC '/compute_nodes';";
+        // logger.info("sql is {}",sql);
+        return executeQueryProcInfo(feMaster, sql);
+    }
+
     public static List<ProcInfo> executeQueryProcInfo(String feMaster,
                                                       String sql) throws SQLException, ClassNotFoundException {
         Connection connection = getConnection(feMaster);
@@ -179,7 +227,7 @@ public class OlapUtils {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 ProcInfo procInfo = new ProcInfo();
-                procInfo.setHostName(resultSet.getString("HostName"));
+                procInfo.setHostName(resultSet.getString("IP"));
                 procInfo.setAlive(resultSet.getBoolean("Alive"));
                 procInfo.setErrMsg(resultSet.getString("ErrMsg"));
                 list.add(procInfo);
@@ -217,5 +265,76 @@ public class OlapUtils {
             }
         }
         return deadList;
+    }
+
+    public static ExecResult dropBackends(String feMaster, String hostName) {
+        ExecResult execResult = new ExecResult();
+        String sql = "ALTER SYSTEM drop BACKENDS \"" + hostName + ":9050\";";
+        logger.info("drop from to cluster , the sql is {}", sql);
+        try {
+            executeSql(feMaster, sql);
+            execResult.setExecResult(true);
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
+        }
+        return execResult;
+    }
+
+    public static ExecResult dropComputeNode(String feMaster, String hostName) {
+        ExecResult execResult = new ExecResult();
+        String sql = "ALTER SYSTEM drop COMPUTE NODE \"" + hostName + ":9050\";";
+        logger.info("drop from to cluster , the sql is {}", sql);
+        try {
+            executeSql(feMaster, sql);
+            execResult.setExecResult(true);
+        } catch (Exception e) {
+            logger.error("Add to cluster Failed,{}",ExceptionUtil.stacktraceToString(e));
+        }
+        return execResult;
+    }
+
+    public static ExecResult dropBackendBySqlClient(String feMaster, String hostName) {
+        String sqlCommand =
+                "mysql -h"
+                        + feMaster
+                        + " -uroot -P9030 -e"
+                        + " ALTER SYSTEM drop BACKENDS  \""
+                        + hostName
+                        + ":9050\"';";
+        // logger.info("sqlCommand is {}", sqlCommand);
+        return ShellUtils.exceShell(sqlCommand);
+    }
+
+    public static ExecResult dropCNBySqlClient(String feMaster, String hostName) {
+        String sqlCommand =
+                "mysql -h"
+                        + feMaster
+                        + " -uroot -P9030 -e"
+                        + " ALTER SYSTEM drop COMPUTE NODE  \""
+                        + hostName
+                        + ":9050\"';";
+        // logger.info("sqlCommand is {}", sqlCommand);
+        return ShellUtils.exceShell(sqlCommand);
+    }
+
+    public static ExecResult dropFollowerBySqlClient(String feMaster, String hostName) {
+        String sqlCommand =
+                "mysql -h"
+                        + feMaster
+                        + " -uroot -P9030 -e"
+                        + " 'ALTER SYSTEM drop FOLLOWER  \""
+                        + hostName
+                        + ":9010\"';";
+        // logger.info("sqlCommand is {}", sqlCommand);
+        return ShellUtils.exceShell(sqlCommand);
+    }
+
+    public static void main(String[] args) {
+        try {
+            ExecResult execResult = addBackend("bigdata4", "bigdata4");
+            System.out.println(execResult.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

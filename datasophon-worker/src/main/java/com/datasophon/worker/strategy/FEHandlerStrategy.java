@@ -23,7 +23,7 @@ import com.datasophon.common.command.ServiceRoleOperateCommand;
 import com.datasophon.common.enums.CommandType;
 import com.datasophon.common.model.ServiceRoleRunner;
 import com.datasophon.common.utils.ExecResult;
-import com.datasophon.common.utils.ThrowableUtils;
+import com.datasophon.common.utils.HostUtils;
 import com.datasophon.worker.handler.ServiceHandler;
 import com.datasophon.worker.utils.ActorUtils;
 
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 
 import akka.actor.ActorRef;
 
-import cn.hutool.core.net.NetUtil;
 import cn.hutool.json.JSONUtil;
 
 public class FEHandlerStrategy extends AbstractHandlerStrategy implements ServiceRoleStrategy {
@@ -45,44 +44,54 @@ public class FEHandlerStrategy extends AbstractHandlerStrategy implements Servic
         ExecResult startResult = new ExecResult();
         logger.info("FEHandlerStrategy start fe" + JSONUtil.toJsonStr(command));
         ServiceHandler serviceHandler = new ServiceHandler(command.getServiceName(), command.getServiceRoleName());
-        if (command.getCommandType() == CommandType.INSTALL_SERVICE) {
-            if (command.isSlave()) {
-                logger.info("first start  fe");
-                ArrayList<String> commands = new ArrayList<>();
-                commands.add("--helper");
-                commands.add(command.getMasterHost() + ":9010");
-                commands.add("--daemon");
-                
-                ServiceRoleRunner startRunner = new ServiceRoleRunner();
-                startRunner.setProgram(command.getStartRunner().getProgram());
-                startRunner.setArgs(commands);
-                startRunner.setTimeout("600");
-                startResult = serviceHandler.start(startRunner, command.getStatusRunner(),
-                        command.getDecompressPackageName(), command.getRunAs());
-                if (startResult.getExecResult()) {
-                    // add follower
-                    try {
-                        OlapSqlExecCommand sqlExecCommand = new OlapSqlExecCommand();
-                        sqlExecCommand.setFeMaster(command.getMasterHost());
-                        sqlExecCommand.setHostName(NetUtil.getLocalhostStr());
-                        sqlExecCommand.setOpsType(OlapOpsType.ADD_FE_FOLLOWER);
-                        ActorUtils.getRemoteActor(command.getManagerHost(), "masterNodeProcessingActor")
-                                .tell(sqlExecCommand, ActorRef.noSender());
-                        logger.info("slave fe start success");
-                    } catch (Exception e) {
-                        logger.error("add slave fe failed {}", ThrowableUtils.getStackTrace(e));
-                    }
-                } else {
-                    logger.error("slave fe start failed");
-                }
-            } else {
-                startResult = serviceHandler.start(command.getStartRunner(), command.getStatusRunner(),
-                        command.getDecompressPackageName(), command.getRunAs());
-            }
-        } else {
-            startResult = serviceHandler.start(command.getStartRunner(), command.getStatusRunner(),
+        // slave安装，master 安装 step
+        if (command.getCommandType() == CommandType.INSTALL_SERVICE && command.isSlave()) {
+            startResult = serviceHandler.start(createStartRunner(command), command.getStatusRunner(),
                     command.getDecompressPackageName(), command.getRunAs());
+            // if not success,drop follower
+            if (startResult.getExecResult()){
+                addFollower(command);
+                logger.info("fe add failed, drop fe from cluster.");
+            }
+            return startResult;
         }
+        startResult = serviceHandler.start(command.getStartRunner(), command.getStatusRunner(),
+                command.getDecompressPackageName(), command.getRunAs());
         return startResult;
+    }
+
+    private void addFollower(ServiceRoleOperateCommand command) {
+        OlapSqlExecCommand sqlExecCommand = new OlapSqlExecCommand();
+        sqlExecCommand.setFeMaster(command.getMasterHost());
+        sqlExecCommand.setHostName(HostUtils.getLocalHostName());
+        sqlExecCommand.setOpsType(OlapOpsType.ADD_FE_FOLLOWER);
+        ActorUtils.getRemoteActor(command.getManagerHost(), "masterNodeProcessingActor")
+                .tell(sqlExecCommand, ActorRef.noSender());
+        logger.info("add fe slave into cluster.");
+    }
+
+
+    private void dropFollower(ServiceRoleOperateCommand command) {
+        OlapSqlExecCommand sqlExecCommand = new OlapSqlExecCommand();
+        sqlExecCommand.setFeMaster(command.getMasterHost());
+        sqlExecCommand.setHostName(HostUtils.getLocalHostName());
+        sqlExecCommand.setOpsType(OlapOpsType.DROP_FE_FOLLOWER);
+        ActorUtils.getRemoteActor(command.getManagerHost(), "masterNodeProcessingActor")
+                .tell(sqlExecCommand, ActorRef.noSender());
+    }
+
+    private ServiceRoleRunner createStartRunner(ServiceRoleOperateCommand command) {
+        logger.info("first start fe");
+        ArrayList<String> commands = new ArrayList<>();
+        commands.add("--helper");
+        commands.add(command.getMasterHost() + ":9010");
+        commands.add("--host_type");
+        commands.add("FQDN");
+        commands.add("--daemon");
+        ServiceRoleRunner startRunner = new ServiceRoleRunner();
+        startRunner.setProgram(command.getStartRunner().getProgram());
+        startRunner.setArgs(commands);
+        startRunner.setTimeout("600");
+        return startRunner;
     }
 }

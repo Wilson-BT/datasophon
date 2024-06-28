@@ -352,7 +352,7 @@ INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (10, 'ALERTMANAGER', CONCAT
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (11, 'SPARK3', CONCAT('http://${grafanaHost','}:3000/d/rCUqf3dWz/7-spark?orgId=1&from=now-30m&to=now&refresh=5m&kiosk'));
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (12, 'TOTAL', CONCAT('http://${grafanaHost','}:3000/d/_4gf-qOZz/1-zong-lan?orgId=1&refresh=30s&kiosk'));
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (13, 'TRINO', CONCAT('http://${grafanaHost','}:3000/d/TGzKne5Wk/trino?orgId=1&refresh=30s&kiosk'));
-INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (14, 'STARROCKS', CONCAT('http://${grafanaHost','}:3000/d/wpcA3tG7z/starrocks?orgId=1&kiosk'));
+INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (14, 'STARROCKS', CONCAT('http://${grafanaHost','}:3000/d/YJZ7BBj4z/starrocks-overview-xi-li-du-nei-cun-jian-kong?orgId=1&var-cluster_name=StarRocks&var-interval=1m&kiosk'));
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (15, 'FLINK', CONCAT('http://${grafanaHost','}:3000/d/-0rFuzoZk/flink-dashboard?orgId=1&refresh=30s&kiosk'));
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (16, 'ELASTICSEARCH', CONCAT('http://${grafanaHost','}:3000/d/3788af4adc3046dd92b3af31d0150c79/elasticsearch-cluster?orgId=1&refresh=5m&var-cluster=ddp_es&var-name=All&var-interval=5m&kiosk'));
 INSERT INTO `t_ddh_cluster_service_dashboard` VALUES (17, 'DS', CONCAT('http://${grafanaHost','}:3000/d/X_NPpJOVk/dolphinscheduler?refresh=1m&kiosk'));
