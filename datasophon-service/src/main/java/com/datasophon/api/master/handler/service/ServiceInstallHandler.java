@@ -89,7 +89,7 @@ public class ServiceInstallHandler extends ServiceHandler {
         
         ActorSelection actorSelection = ActorUtils.actorSystem.actorSelection(
                 "akka.tcp://datasophon@" + serviceRoleInfo.getHostname() + ":2552/user/worker/installServiceActor");
-        Timeout timeout = new Timeout(Duration.create(180, TimeUnit.SECONDS));
+        Timeout timeout = new Timeout(Duration.create(300, TimeUnit.SECONDS));
         Future<Object> future = Patterns.ask(actorSelection, installServiceRoleCommand, timeout);
         try {
             ExecResult installResult = (ExecResult) Await.result(future, timeout.duration());

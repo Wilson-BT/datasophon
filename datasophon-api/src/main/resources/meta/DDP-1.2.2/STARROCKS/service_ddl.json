@@ -145,9 +145,10 @@
           "be_priority_networks",
           "sys_log_level",
           "be_port",
-          "webserver_port",
+          "be_http_port",
           "brpc_port",
           "storage_root_path",
+          "heartbeat_service_port",
           "mem_limit",
           "custom.be.conf"
         ]
@@ -164,8 +165,6 @@
           "rpc_port",
           "query_port",
           "fe_priority_networks",
-          "lower_case_table_names",
-          "enable_outfile_to_local",
           "custom.fe.conf"
         ]
       }
@@ -190,10 +189,10 @@
       "configType": "path",
       "required": true,
       "type": "input",
-      "value": "${STARROCKS_HOME}/fe/meta_dir",
+      "value": "/data/starrocks/fe/meta_dir",
       "configurableInWizard": true,
       "hidden": false,
-      "defaultValue": "${STARROCKS_HOME}/fe/meta_dir"
+      "defaultValue": "/data/starrocks/fe/meta_dir"
     },
     {
       "name": "rpc_port",
@@ -244,33 +243,6 @@
       "defaultValue": "8"
     },
     {
-      "name": "lower_case_table_names",
-      "label": "表名大小写是否敏感,只有初始化安装时有效",
-      "description": "值为 0 时，表名大小写敏感。默认为0。\n值为 1 时，表名大小写不敏感，doris在存储和查询时会将表名转换为小写。\n优点是在一条语句中可以使用表名的任意大小写形式\n缺点是建表后无法获得建表语句中指定的表名，show tables 查看的表名为指定表名的小写。\n值为 2 时，表名大小写不敏感，doris存储建表语句中指定的表名，查询时转换为小写进行比较。\n优点是show tables 查看的表名为建表语句中指定的表名；\n缺点是同一语句中只能使用表名的一种大小写形式。",
-      "required": true,
-      "type": "select",
-      "value": "0",
-      "configurableInWizard": true,
-      "selectValue": [
-        "0",
-        "1",
-        "2"
-      ],
-      "hidden": false,
-      "defaultValue": "0"
-    },
-    {
-      "name": "enable_outfile_to_local",
-      "label": "是否允许outfile函数将结果导出到本地磁盘",
-      "description": "是否允许 outfile 函数将结果导出到本地磁盘",
-      "required": true,
-      "type": "switch",
-      "value": "",
-      "configurableInWizard": true,
-      "hidden": false,
-      "defaultValue": false
-    },
-    {
       "name": "be_priority_networks",
       "label": "BE优先网段",
       "description": "为那些有多个 IP 地址的服务器声明一个选择策略。\n请注意，最多应该有一个 IP 地址与此列表匹配。这是一个以分号分隔格式的列表，用 CIDR 表示法，例如 10.10.10.0/24。 如果没有匹配这条规则的ip，会随机选择一个。",
@@ -310,7 +282,7 @@
       "defaultValue": "9060"
     },
     {
-      "name": "webserver_port",
+      "name": "be_http_port",
       "label": "BE WebServer端口",
       "description": "BE WebServer端口",
       "required": true,
@@ -340,11 +312,21 @@
       "required": true,
       "type": "multiple",
       "value": [
-        "${STARROCKS_HOME}/fe/meta_dir"
+        "/data/starrocks/fe/meta_dir"
       ],
       "configurableInWizard": true,
       "hidden": false,
-      "defaultValue": "${STARROCKS_HOME}/be/storage"
+      "defaultValue": "/data/starrocks/be/storage"
+    },{
+      "name": "heartbeat_service_port",
+      "label": "BE心跳服务端口",
+      "description": "BE 心跳服务端口",
+      "required": true,
+      "type": "input",
+      "value": "",
+      "configurableInWizard": true,
+      "hidden": false,
+      "defaultValue": "9050"
     },
     {
       "name": "mem_limit",

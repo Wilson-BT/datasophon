@@ -113,6 +113,7 @@ public class OlapUtils {
             }
         } catch (Exception e){
             logger.error(ExceptionUtil.stacktraceToString(e));
+            throw new SQLException(e.getMessage());
         } finally {
             close(connection, statement);
         }
@@ -176,6 +177,7 @@ public class OlapUtils {
         String url = "jdbc:mysql://" + feMaster + ":9030";
         // 加载驱动
         Class.forName("com.mysql.cj.jdbc.Driver");
+        logger.info("Get connection with url:{},username:{}",url,username);
         return DriverManager.getConnection(url, username, null);
     }
     
