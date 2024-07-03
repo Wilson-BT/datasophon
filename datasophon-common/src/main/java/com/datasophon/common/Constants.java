@@ -198,7 +198,7 @@ public final class Constants {
      * BLACK
      */
     public static final String BLACK = "";
-    
+
     /**
      * SINGLE_SLASH /
      */
@@ -288,6 +288,8 @@ public final class Constants {
     public static final String ROOT = "root";
     
     public static final String DISPATCHER_WORK = "dispatcher-worker.sh";
+
+    public static final String GRAFANA_PATH = "/grafana";
 
     public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
 }
